@@ -1,0 +1,24 @@
+{
+  "name": "les-petits-plats",
+  "version": "1.0.0",
+  "description": "Projet n°7 du [parcours Développeur d'Application - JavaScript React](https://openclassrooms.com/fr/paths/516-developpeur-dapplication-javascript-react) d'OpenClassrooms : _Développez un algorithme de recherche en JavaScript_.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "sass": "sass --watch ./sass/main.scss:./css/style.css"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/clementstorne/Les-petits-plats.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/clementstorne/Les-petits-plats/issues"
+  },
+  "homepage": "https://github.com/clementstorne/Les-petits-plats#readme",
+  "dependencies": {
+    "bootstrap": "^5.2.2"
+  }
+}

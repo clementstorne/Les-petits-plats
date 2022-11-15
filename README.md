@@ -1,4 +1,4 @@
-# Les Petits Plats
+# Les petits plats
 
 Projet n°7 du [parcours Développeur d'Application - JavaScript React](https://openclassrooms.com/fr/paths/516-developpeur-dapplication-javascript-react) d'OpenClassrooms : _Développez un algorithme de recherche en JavaScript_.
 
@@ -15,4 +15,4 @@ Projet n°7 du [parcours Développeur d'Application - JavaScript React](https://
 
 ## 💻 Démo du site
 
-[Les Petits Plats](https://clementstorne.github.io/)
+[Les petits plats](https://clementstorne.github.io/)
