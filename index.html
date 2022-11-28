@@ -28,11 +28,9 @@
         <span id="searchbar-logo"> </span>
       </div>
 
-      <button id="dropdown-ingredients" class="dropdown-btn">
-        Ingrédients
-      </button>
-      <button id="dropdown-appliance" class="dropdown-btn">Appareils</button>
-      <button id="dropdown-utensils" class="dropdown-btn">Ustensiles</button>
+      <div class="tags-wrapper"></div>
+
+      <div class="filters-wrapper"></div>
     </header>
 
     <main></main>
@@ -44,8 +42,12 @@
       crossorigin="anonymous"
     ></script>
 
+    <script src="./js/factories/TagsFactory.js"></script>
+    <script src="./js/factories/DropdownFactory.js"></script>
     <script src="./js/models/Recipe.js"></script>
-    <script src="./js/templates/RecipeCard.js"></script>
+    <script src="./js/templates/Tag.js"></script>
+    <script src="./js/templates/CardRecipe.js"></script>
+    <script src="./js/templates/Dropdown.js"></script>
     <script type="module" src="./js/App.js"></script>
   </body>
 </html>

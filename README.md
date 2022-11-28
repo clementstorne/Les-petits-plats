@@ -15,4 +15,4 @@ Projet n°7 du [parcours Développeur d'Application - JavaScript React](https://
 
 ## 💻 Démo du site
 
-[Les petits plats](https://clementstorne.github.io/)
+[Les petits plats](https://clementstorne.github.io/Les-petits-plats/)

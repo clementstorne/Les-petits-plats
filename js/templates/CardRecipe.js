@@ -1,4 +1,4 @@
-class RecipeCard {
+class CardRecipe {
   constructor(recipe) {
     this.name = recipe.name;
     this.time = recipe.time;
@@ -13,7 +13,7 @@ class RecipeCard {
     return this.recipe;
   }
 
-  createRecipeCard() {
+  createCardRecipe() {
     const ingredientsList = [];
     this.ingredients.forEach((ingredient) => {
       if (ingredient.unit === undefined && ingredient.quantity !== undefined) {
@@ -34,9 +34,8 @@ class RecipeCard {
       }
     });
     const list = ingredientsList.join(",");
-    console.log(list);
 
-    const recipeCard = `
+    const CardRecipe = `
         <div class="card-top">
         </div>
         <div class="card-bottom">
@@ -51,7 +50,7 @@ class RecipeCard {
         </div>
         `;
 
-    this.card.innerHTML = recipeCard;
+    this.card.innerHTML = CardRecipe;
 
     return this.card;
   }

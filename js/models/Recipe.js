@@ -7,6 +7,19 @@ class Recipe {
     this.time = data.time;
     this.description = data.description;
     this.appliance = data.appliance;
-    this.ustensils = data.ustensils;
+    this.utensils = data.ustensils;
+  }
+
+  get ingredientsList() {
+    const list = [];
+    this.ingredients.forEach((object) => list.push(object.ingredient));
+    return list;
+  }
+
+  get appliancesList() {
+    return [this.appliance];
+  }
+  get ustensilsList() {
+    return this.utensils;
   }
 }
