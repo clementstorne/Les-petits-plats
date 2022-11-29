@@ -22,4 +22,9 @@ class Recipe {
   get ustensilsList() {
     return this.utensils;
   }
+
+  get searchList() {
+    const list = [this.name].concat(this.description);
+    return list.join().toLocaleLowerCase();
+  }
 }

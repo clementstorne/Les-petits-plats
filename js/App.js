@@ -6,8 +6,7 @@ function deleteDuplicateItems(list) {
   return list.filter((item, index) => list.indexOf(item) === index);
 }
 
-function getList(type) {
-  const Recipes = recipes.map((recipe) => new Recipe(recipe));
+function getList(Recipes, type) {
   let list = [];
 
   Recipes.forEach((recipe) => {
@@ -77,7 +76,7 @@ class App {
     });
 
     FILTERS.forEach((filter) => {
-      let list = getList(`${filter}`);
+      let list = getList(Recipes, `${filter}`);
       const dropdownFilter = new DropdownFactory(list, `${filter}`);
       this.filtersWrapper.appendChild(dropdownFilter.createDropdown());
 
@@ -107,6 +106,46 @@ class App {
           this.tagList.appendChild(newTag.createTag());
         });
       });
+    });
+
+    const allRecipes = this.recipeGrid.innerHTML;
+    const ingredientsListContent =
+      document.getElementById("ingredients-list").innerHTML;
+    const applianceListContent =
+      document.getElementById("appliance-list").innerHTML;
+    const utensilsListContent =
+      document.getElementById("utensils-list").innerHTML;
+
+    const searchBar = document.getElementById("search");
+    searchBar.addEventListener("keyup", (e) => {
+      if (e.target.value.length > 2) {
+        this.recipeGrid.innerHTML = "";
+        const result = filterRecipes(Recipes, e.target.value);
+        result.forEach((recipe) => {
+          const RecipeCard = new CardRecipe(recipe);
+          this.recipeGrid.appendChild(RecipeCard.createCardRecipe());
+        });
+
+        FILTERS.forEach((filter) => {
+          let list = getList(result, `${filter}`);
+          const contentList = [];
+          list.forEach((item) => {
+            contentList.push(`<li>${item}</li>`);
+          });
+
+          const ul = document.getElementById(`${filter}-list`);
+
+          ul.innerHTML = contentList.join("");
+        });
+      } else {
+        this.recipeGrid.innerHTML = allRecipes;
+        document.getElementById("ingredients-list").innerHTML =
+          ingredientsListContent;
+        document.getElementById("appliance-list").innerHTML =
+          applianceListContent;
+        document.getElementById("utensils-list").innerHTML =
+          utensilsListContent;
+      }
     });
   }
 }

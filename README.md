@@ -8,7 +8,6 @@ Projet n°7 du [parcours Développeur d'Application - JavaScript React](https://
 
 - HTML
 - Sass
-- Bootstrap
 - JavaScript
 
 ## 📎 Rendu visuel
