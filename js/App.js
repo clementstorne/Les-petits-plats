@@ -121,22 +121,28 @@ class App {
       if (e.target.value.length > 2) {
         this.recipeGrid.innerHTML = "";
         const result = filterRecipes(Recipes, e.target.value);
-        result.forEach((recipe) => {
-          const RecipeCard = new CardRecipe(recipe);
-          this.recipeGrid.appendChild(RecipeCard.createCardRecipe());
-        });
 
-        FILTERS.forEach((filter) => {
-          let list = getList(result, `${filter}`);
-          const contentList = [];
-          list.forEach((item) => {
-            contentList.push(`<li>${item}</li>`);
+        if (result.length < 1) {
+          this.recipeGrid.innerHTML =
+            "Aucun résultat ne correspond à votre recherche";
+        } else {
+          result.forEach((recipe) => {
+            const RecipeCard = new CardRecipe(recipe);
+            this.recipeGrid.appendChild(RecipeCard.createCardRecipe());
           });
 
-          const ul = document.getElementById(`${filter}-list`);
+          FILTERS.forEach((filter) => {
+            let list = getList(result, `${filter}`);
+            const contentList = [];
+            list.forEach((item) => {
+              contentList.push(`<li>${item}</li>`);
+            });
 
-          ul.innerHTML = contentList.join("");
-        });
+            const ul = document.getElementById(`${filter}-list`);
+
+            ul.innerHTML = contentList.join("");
+          });
+        }
       } else {
         this.recipeGrid.innerHTML = allRecipes;
         document.getElementById("ingredients-list").innerHTML =
