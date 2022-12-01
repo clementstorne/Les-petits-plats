@@ -3,7 +3,7 @@ import { recipes } from "../data/recipes.js";
 const FILTERS = ["ingredients", "appliance", "utensils"];
 
 /**
- * Delete all the duplications in an array
+ * Delete all the duplications in an array.
  * @param   {array}  list  Initial array with potential duplications
  * @return  {array}        Array without duplications
  */
@@ -12,7 +12,20 @@ function deleteDuplicateItems(list) {
 }
 
 /**
- * Expand the dropdown button
+ * Turn a list of strings into a list of <li> items.
+ * @param   {string[]}  list  Initial array of strings
+ * @return  {string[]}        Array of <li> items
+ */
+function turnIntoListOfItems(list) {
+  const contentList = [];
+  list.forEach((item) => {
+    contentList.push(`<li>${item}</li>`);
+  });
+  return contentList;
+}
+
+/**
+ * Expand the dropdown button.
  * @param   {string}  category  Allows to select which dropdown to expand ('ingredients', 'appliance' or 'utensils')
  */
 function expandDropdown(category) {
@@ -29,7 +42,7 @@ function expandDropdown(category) {
 }
 
 /**
- * Reduce the dropdown button
+ * Reduce the dropdown button.
  * @param   {string}  category  Allows to select which dropdown to expand ('ingredients', 'appliance' or 'utensils')
  */
 function reduceDropdown(category) {
@@ -46,7 +59,7 @@ function reduceDropdown(category) {
 }
 
 /**
- * Reduce all the dropdown buttons except the one clicked
+ * Reduce all the dropdown buttons except the one clicked.
  * @param   {string}  category  Category of the dropdown button that has been clicked ('ingredients', 'appliance' or 'utensils')
  */
 function reduceAllOthersDropdowns(category) {
@@ -69,7 +82,7 @@ class App {
   }
 
   /**
-   * Render the recipe cards on the page
+   * Render the recipe cards on the page.
    * @param   {object[]}  Recipes   Array of Recipe objects
    */
   _renderRecipes(Recipes) {
@@ -80,7 +93,7 @@ class App {
   }
 
   /**
-   * Get all of the tags of a dropdown button
+   * Get all of the tags of a dropdown menu.
    * @param   {object[]}  Recipes   Array of Recipe objects
    * @param   {string}    category  Category of the dropdown ('ingredients', 'appliance' or 'utensils')
    * @return  {string[]}            Array of all tags to display in the dropdown menu
@@ -105,7 +118,18 @@ class App {
   }
 
   /**
-   * Render the dropdown button on the page
+   * Get all of the items of a dropdown menu.
+   * @param   {string}    category  Category of the dropdown ('ingredients', 'appliance' or 'utensils')
+   * @return  {string}              HTML content for the dropdown menu
+   */
+  _getDropdownContent(category) {
+    return turnIntoListOfItems(
+      this._getDropdownContentList(this.Recipes, category)
+    ).join("");
+  }
+
+  /**
+   * Render the dropdown button on the page.
    * @param   {string}    category         Category of the dropdown ('ingredients', 'appliance' or 'utensils')
    * @param   {string[]}  fullContentList  Array of all tags to display in the dropdown menu
    */
@@ -115,7 +139,7 @@ class App {
   }
 
   /**
-   * On clic on the dropdown button, the dropdown menu expands
+   * On clic on the dropdown button, the dropdown menu expands.
    * @param   {string}  category  Category of the dropdown ('ingredients', 'appliance' or 'utensils')
    */
   _addDropdownLabelEvent(category) {
@@ -130,7 +154,7 @@ class App {
   }
 
   /**
-   * On clic on the dropdown icon, the dropdown menu expands or drops
+   * On clic on the dropdown icon, the dropdown menu expands or drops.
    * @param   {string}  category  Category of the dropdown ('ingredients', 'appliance' or 'utensils')
    */
   _addDropdownToggleButtonEvent(category) {
@@ -148,7 +172,7 @@ class App {
   }
 
   /**
-   * Render a tag on the page
+   * Render a tag on the page.
    * @param   {string}  label     Label of the tag
    * @param   {string}  category  Category of the tag ('ingredients', 'appliance' or 'utensils')
    */
@@ -158,10 +182,61 @@ class App {
   }
 
   /**
-   * Render all the elements on the page
+   * When the user types 3 or more characters, recipes and dropdown menu tags are filtered.
+   * If no result is found, a message is displayed.
+   * If there are 2 or less characters, recipes and dropdown menus are reseted.
+   */
+  _addSearchbarEvent() {
+    const searchBar = document.getElementById("search");
+    searchBar.addEventListener("keyup", (e) => {
+      if (e.target.value.length > 2) {
+        this.recipeGrid.innerHTML = "";
+        const result = filterRecipes(this.Recipes, e.target.value);
+        if (result.length < 1) {
+          this.recipeGrid.innerHTML =
+            "Aucun résultat ne correspond à votre recherche";
+          FILTERS.forEach((filter) => {
+            document.getElementById(`${filter}-list`).innerHTML = "";
+          });
+        } else {
+          this._renderRecipes(result);
+          FILTERS.forEach((filter) => {
+            this._updateDropdownMenuAfterResearch(result, filter);
+          });
+        }
+      } else {
+        this._resetAfterResearch();
+      }
+    });
+  }
+
+  /**
+   * Update the content of a dropdown menu with remaining recipes tags.
+   * @param   {object[]}  Recipes   Array of Recipe objects
+   * @param   {string}    category  Category of the dropdown ('ingredients', 'appliance' or 'utensils')
+   */
+  _updateDropdownMenuAfterResearch(Recipes, category) {
+    document.getElementById(`${category}-list`).innerHTML = turnIntoListOfItems(
+      this._getDropdownContentList(Recipes, `${category}`)
+    ).join("");
+  }
+
+  /**
+   * Reset the recipes and the dropdown menus.
+   */
+  _resetAfterResearch() {
+    this.recipeGrid.innerHTML = "";
+    this._renderRecipes(this.Recipes);
+    FILTERS.forEach((filter) => {
+      document.getElementById(`${filter}-list`).innerHTML =
+        this._getDropdownContent(`${filter}`);
+    });
+  }
+
+  /**
+   * Render all the elements on the page.
    */
   render() {
-    const Recipes = recipes.map((recipe) => new Recipe(recipe));
     this._renderRecipes(this.Recipes);
 
     FILTERS.forEach((filter) => {
@@ -179,48 +254,7 @@ class App {
       });
     });
 
-    const allRecipes = this.recipeGrid.innerHTML;
-    const ingredientsListContent =
-      document.getElementById("ingredients-list").innerHTML;
-    const applianceListContent =
-      document.getElementById("appliance-list").innerHTML;
-    const utensilsListContent =
-      document.getElementById("utensils-list").innerHTML;
-
-    const searchBar = document.getElementById("search");
-    searchBar.addEventListener("keyup", (e) => {
-      if (e.target.value.length > 2) {
-        this.recipeGrid.innerHTML = "";
-        const result = filterRecipes(Recipes, e.target.value);
-
-        if (result.length < 1) {
-          this.recipeGrid.innerHTML =
-            "Aucun résultat ne correspond à votre recherche";
-        } else {
-          this._renderRecipes(result);
-
-          FILTERS.forEach((filter) => {
-            let list = this._getDropdownContentList(result, `${filter}`);
-            const contentList = [];
-            list.forEach((item) => {
-              contentList.push(`<li>${item}</li>`);
-            });
-
-            const ul = document.getElementById(`${filter}-list`);
-
-            ul.innerHTML = contentList.join("");
-          });
-        }
-      } else {
-        this.recipeGrid.innerHTML = allRecipes;
-        document.getElementById("ingredients-list").innerHTML =
-          ingredientsListContent;
-        document.getElementById("appliance-list").innerHTML =
-          applianceListContent;
-        document.getElementById("utensils-list").innerHTML =
-          utensilsListContent;
-      }
-    });
+    this._addSearchbarEvent();
   }
 }
 
