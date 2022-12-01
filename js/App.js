@@ -2,36 +2,24 @@ import { recipes } from "../data/recipes.js";
 
 const FILTERS = ["ingredients", "appliance", "utensils"];
 
+/**
+ * Delete all the duplications in an array
+ * @param   {array}  list  Initial array with potential duplications
+ * @return  {array}        Array without duplications
+ */
 function deleteDuplicateItems(list) {
   return list.filter((item, index) => list.indexOf(item) === index);
 }
 
-function getList(Recipes, type) {
-  let list = [];
-
-  Recipes.forEach((recipe) => {
-    switch (type) {
-      case "ingredients":
-        list = list.concat(recipe.ingredientsList);
-        break;
-      case "appliance":
-        list = list.concat(recipe.appliancesList);
-        break;
-      case "utensils":
-        list = list.concat(recipe.ustensilsList);
-        break;
-    }
-  });
-  list = deleteDuplicateItems(list).sort();
-
-  return list;
-}
-
-function expandDropdown(filter) {
-  const label = document.getElementById(`${filter}-label`);
-  const input = document.getElementById(`${filter}-input`);
-  const icon = document.getElementById(`${filter}-icon`);
-  const ul = document.getElementById(`${filter}-list`);
+/**
+ * Expand the dropdown button
+ * @param   {string}  category  Allows to select which dropdown to expand ('ingredients', 'appliance' or 'utensils')
+ */
+function expandDropdown(category) {
+  const label = document.getElementById(`${category}-label`);
+  const input = document.getElementById(`${category}-input`);
+  const icon = document.getElementById(`${category}-icon`);
+  const ul = document.getElementById(`${category}-list`);
 
   label.style.width = "667px";
   icon.classList.remove("filter-icon-expand");
@@ -40,11 +28,15 @@ function expandDropdown(filter) {
   ul.style.visibility = "visible";
 }
 
-function reduceDropdown(filter) {
-  const label = document.getElementById(`${filter}-label`);
-  const input = document.getElementById(`${filter}-input`);
-  const icon = document.getElementById(`${filter}-icon`);
-  const ul = document.getElementById(`${filter}-list`);
+/**
+ * Reduce the dropdown button
+ * @param   {string}  category  Allows to select which dropdown to expand ('ingredients', 'appliance' or 'utensils')
+ */
+function reduceDropdown(category) {
+  const label = document.getElementById(`${category}-label`);
+  const input = document.getElementById(`${category}-input`);
+  const icon = document.getElementById(`${category}-icon`);
+  const ul = document.getElementById(`${category}-list`);
 
   label.style.width = null;
   input.style.visibility = null;
@@ -53,9 +45,13 @@ function reduceDropdown(filter) {
   icon.classList.add("filter-icon-expand");
 }
 
-function reduceAllOthersDropdowns(clickedFilter) {
+/**
+ * Reduce all the dropdown buttons except the one clicked
+ * @param   {string}  category  Category of the dropdown button that has been clicked ('ingredients', 'appliance' or 'utensils')
+ */
+function reduceAllOthersDropdowns(category) {
   FILTERS.forEach((filter) => {
-    if (filter !== clickedFilter) {
+    if (filter !== category) {
       reduceDropdown(filter);
     }
   });
@@ -68,42 +64,117 @@ class App {
     this.filtersWrapper = document.querySelector(".filters-wrapper");
   }
 
-  render() {
-    const Recipes = recipes.map((recipe) => new Recipe(recipe));
+  get Recipes() {
+    return recipes.map((recipe) => new Recipe(recipe));
+  }
+
+  /**
+   * Render the recipe cards on the page
+   * @param   {object[]}  Recipes   Array of Recipe objects
+   */
+  _renderRecipes(Recipes) {
     Recipes.forEach((recipe) => {
       const RecipeCard = new CardRecipe(recipe);
       this.recipeGrid.appendChild(RecipeCard.createCardRecipe());
     });
+  }
+
+  /**
+   * Get all of the tags of a dropdown button
+   * @param   {object[]}  Recipes   Array of Recipe objects
+   * @param   {string}    category  Category of the dropdown ('ingredients', 'appliance' or 'utensils')
+   * @return  {string[]}            Array of all tags to display in the dropdown menu
+   */
+  _getDropdownContentList(Recipes, category) {
+    let list = [];
+    Recipes.forEach((recipe) => {
+      switch (category) {
+        case "ingredients":
+          list = list.concat(recipe.ingredientsList);
+          break;
+        case "appliance":
+          list = list.concat(recipe.appliancesList);
+          break;
+        case "utensils":
+          list = list.concat(recipe.ustensilsList);
+          break;
+      }
+    });
+    list = deleteDuplicateItems(list).sort();
+    return list;
+  }
+
+  /**
+   * Render the dropdown button on the page
+   * @param   {string}    category         Category of the dropdown ('ingredients', 'appliance' or 'utensils')
+   * @param   {string[]}  fullContentList  Array of all tags to display in the dropdown menu
+   */
+  _renderDropdown(category, fullContentList) {
+    const dropdownFilter = new DropdownFactory(fullContentList, category);
+    this.filtersWrapper.appendChild(dropdownFilter.createDropdown());
+  }
+
+  /**
+   * On clic on the dropdown button, the dropdown menu expands
+   * @param   {string}  category  Category of the dropdown ('ingredients', 'appliance' or 'utensils')
+   */
+  _addDropdownLabelEvent(category) {
+    document
+      .getElementById(`${category}-label`)
+      .addEventListener("click", (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        reduceAllOthersDropdowns(category);
+        expandDropdown(category);
+      });
+  }
+
+  /**
+   * On clic on the dropdown icon, the dropdown menu expands or drops
+   * @param   {string}  category  Category of the dropdown ('ingredients', 'appliance' or 'utensils')
+   */
+  _addDropdownToggleButtonEvent(category) {
+    const icon = document.getElementById(`${category}-icon`);
+    icon.addEventListener("click", (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      if (icon.classList.contains("filter-icon-reduce")) {
+        reduceDropdown(category);
+      } else {
+        reduceAllOthersDropdowns(category);
+        expandDropdown(category);
+      }
+    });
+  }
+
+  /**
+   * Render a tag on the page
+   * @param   {string}  label     Label of the tag
+   * @param   {string}  category  Category of the tag ('ingredients', 'appliance' or 'utensils')
+   */
+  _renderNewTag(label, category) {
+    const newTag = new TagsFactory(`${label.innerText}`, `${category}`);
+    this.tagList.appendChild(newTag.createTag());
+  }
+
+  /**
+   * Render all the elements on the page
+   */
+  render() {
+    const Recipes = recipes.map((recipe) => new Recipe(recipe));
+    this._renderRecipes(this.Recipes);
 
     FILTERS.forEach((filter) => {
-      let list = getList(Recipes, `${filter}`);
-      const dropdownFilter = new DropdownFactory(list, `${filter}`);
-      this.filtersWrapper.appendChild(dropdownFilter.createDropdown());
+      this._renderDropdown(
+        `${filter}`,
+        this._getDropdownContentList(this.Recipes, `${filter}`)
+      );
+      this._addDropdownLabelEvent(filter);
+      this._addDropdownToggleButtonEvent(filter);
 
-      const label = document.getElementById(`${filter}-label`);
-      const icon = document.getElementById(`${filter}-icon`);
-
-      label.addEventListener("click", (e) => {
-        e.stopPropagation();
-        e.preventDefault();
-        reduceAllOthersDropdowns(filter);
-        expandDropdown(filter);
-      });
-
-      icon.addEventListener("click", (e) => {
-        e.stopPropagation();
-        e.preventDefault();
-        if (icon.classList.contains("filter-icon-reduce")) {
-          reduceDropdown(filter);
-        } else {
-          reduceAllOthersDropdowns(filter);
-          expandDropdown(filter);
-        }
-      });
       document.querySelectorAll(`#${filter}-list li`).forEach((label) => {
         label.addEventListener("click", () => {
-          const newTag = new TagsFactory(`${label.innerText}`, `${filter}`);
-          this.tagList.appendChild(newTag.createTag());
+          this._renderNewTag(label, filter);
         });
       });
     });
@@ -126,13 +197,10 @@ class App {
           this.recipeGrid.innerHTML =
             "Aucun résultat ne correspond à votre recherche";
         } else {
-          result.forEach((recipe) => {
-            const RecipeCard = new CardRecipe(recipe);
-            this.recipeGrid.appendChild(RecipeCard.createCardRecipe());
-          });
+          this._renderRecipes(result);
 
           FILTERS.forEach((filter) => {
-            let list = getList(result, `${filter}`);
+            let list = this._getDropdownContentList(result, `${filter}`);
             const contentList = [];
             list.forEach((item) => {
               contentList.push(`<li>${item}</li>`);
