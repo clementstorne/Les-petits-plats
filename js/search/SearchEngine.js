@@ -1,12 +1,12 @@
-// import { recipes } from "../../data/recipes.js";
-
-// const Recipes = recipes.map((recipe) => new Recipe(recipe));
-
-// const result = filterRecipes(Recipes, "gla");
-// console.log(result);
-
-function filterRecipes(recipes, query) {
+function filterFromSearchnar(recipes, query) {
   return recipes.filter((recipe) =>
     recipe.searchList.includes(query.toLowerCase())
   );
+}
+
+function filterFromTag(recipes, tag) {
+  const result = recipes.filter((recipe) =>
+    recipe.tagList.includes(tag.toLowerCase())
+  );
+  return result;
 }

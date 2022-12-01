@@ -75,6 +75,7 @@ class App {
     this.recipeGrid = document.querySelector("main");
     this.tagList = document.querySelector(".tags-wrapper");
     this.filtersWrapper = document.querySelector(".filters-wrapper");
+    this.displayedRecipes = [];
   }
 
   get Recipes() {
@@ -182,31 +183,71 @@ class App {
   }
 
   /**
+   * When no result is found, display a message and remove all tags from dropdown menus.
+   */
+  _noResultFound() {
+    this.recipeGrid.innerHTML = "Aucune recette ne correspond à vos critères";
+    FILTERS.forEach((filter) => {
+      document.getElementById(`${filter}-list`).innerHTML = "";
+    });
+  }
+
+  /**
+   * Display results of the research
+   * @param   {object[]}  list   Array of Recipe objects
+   */
+  _renderResults(list) {
+    this.displayedRecipes = list;
+    this._renderRecipes(this.displayedRecipes);
+    this._updateAllDropdownMenusAfterResearch();
+  }
+
+  /**
    * When the user types 3 or more characters, recipes and dropdown menu tags are filtered.
    * If no result is found, a message is displayed.
    * If there are 2 or less characters, recipes and dropdown menus are reseted.
    */
   _addSearchbarEvent() {
-    const searchBar = document.getElementById("search");
-    searchBar.addEventListener("keyup", (e) => {
+    document.getElementById("search").addEventListener("keyup", (e) => {
       if (e.target.value.length > 2) {
         this.recipeGrid.innerHTML = "";
-        const result = filterRecipes(this.Recipes, e.target.value);
-        if (result.length < 1) {
-          this.recipeGrid.innerHTML =
-            "Aucun résultat ne correspond à votre recherche";
-          FILTERS.forEach((filter) => {
-            document.getElementById(`${filter}-list`).innerHTML = "";
-          });
+        const results = filterFromSearchnar(
+          this.displayedRecipes,
+          e.target.value
+        );
+        if (results.length < 1) {
+          this._noResultFound();
         } else {
-          this._renderRecipes(result);
-          FILTERS.forEach((filter) => {
-            this._updateDropdownMenuAfterResearch(result, filter);
-          });
+          this._renderResults(results);
+          this._updateAllDropdownMenusAfterResearch();
+          this._addSearchByTagEvent();
         }
       } else {
         this._resetAfterResearch();
       }
+    });
+  }
+
+  /**
+   * When the user choses a tag, recipes and dropdown menu tags are filtered.
+   *
+   */
+  _addSearchByTagEvent() {
+    FILTERS.forEach((filter) => {
+      document.querySelectorAll(`#${filter}-list li`).forEach((tag) => {
+        tag.addEventListener("click", () => {
+          this._renderNewTag(tag, filter);
+          this.recipeGrid.innerHTML = "";
+          this.displayedRecipes = filterFromTag(
+            this.displayedRecipes,
+            tag.innerText
+          );
+          this._renderRecipes(this.displayedRecipes);
+          this._updateAllDropdownMenusAfterResearch();
+          this._addSearchbarEvent();
+          this._addSearchByTagEvent();
+        });
+      });
     });
   }
 
@@ -222,11 +263,20 @@ class App {
   }
 
   /**
+   * Update the content of all dropdown menus with remaining recipes tags.
+   */
+  _updateAllDropdownMenusAfterResearch() {
+    FILTERS.forEach((filter) => {
+      this._updateDropdownMenuAfterResearch(this.displayedRecipes, filter);
+    });
+  }
+
+  /**
    * Reset the recipes and the dropdown menus.
    */
   _resetAfterResearch() {
     this.recipeGrid.innerHTML = "";
-    this._renderRecipes(this.Recipes);
+    this._renderRecipes(this.displayedRecipes);
     FILTERS.forEach((filter) => {
       document.getElementById(`${filter}-list`).innerHTML =
         this._getDropdownContent(`${filter}`);
@@ -238,6 +288,7 @@ class App {
    */
   render() {
     this._renderRecipes(this.Recipes);
+    this.displayedRecipes = this.Recipes;
 
     FILTERS.forEach((filter) => {
       this._renderDropdown(
@@ -246,15 +297,10 @@ class App {
       );
       this._addDropdownLabelEvent(filter);
       this._addDropdownToggleButtonEvent(filter);
-
-      document.querySelectorAll(`#${filter}-list li`).forEach((label) => {
-        label.addEventListener("click", () => {
-          this._renderNewTag(label, filter);
-        });
-      });
     });
 
     this._addSearchbarEvent();
+    this._addSearchByTagEvent();
   }
 }
 

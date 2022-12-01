@@ -24,7 +24,15 @@ class Recipe {
   }
 
   get searchList() {
-    const list = [this.name].concat(this.description);
+    const list = [this.name].concat(this.ingredientsList, this.description);
+    return list.join().toLocaleLowerCase();
+  }
+
+  get tagList() {
+    const list = this.ingredientsList.concat(
+      this.appliancesList,
+      this.ustensilsList
+    );
     return list.join().toLocaleLowerCase();
   }
 }
