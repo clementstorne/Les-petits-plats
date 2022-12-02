@@ -1,4 +1,4 @@
-function filterFromSearchnar(recipes, query) {
+function filterFromSearchbar(recipes, query) {
   return recipes.filter((recipe) =>
     recipe.searchList.includes(query.toLowerCase())
   );

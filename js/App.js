@@ -245,6 +245,21 @@ class App {
   }
 
   /**
+   * Filter recipes by searchbar. Then display results on the page.
+   * @param   {object[]}  Recipes   Array of Recipe objects
+   */
+  _filterBySearchbarAndDisplayResults(Recipes) {
+    this.displayedRecipes = filterFromSearchbar(
+      Recipes,
+      document.getElementById("search").value
+    );
+    this._renderResults(this.displayedRecipes);
+    this._addSearchbarEvent();
+    this._addSearchByTagEvent();
+    this._addCloseTagEvent();
+  }
+
+  /**
    * When the user types 3 or more characters, recipes and dropdown menu tags are filtered.
    * If no result is found, a message is displayed.
    * If there are 2 or less characters, recipes and dropdown menus are reseted.
@@ -252,7 +267,7 @@ class App {
   _addSearchbarEvent() {
     document.getElementById("search").addEventListener("keyup", (e) => {
       if (e.target.value.length > 2) {
-        const results = filterFromSearchnar(
+        const results = filterFromSearchbar(
           this.displayedRecipes,
           e.target.value
         );
@@ -276,6 +291,18 @@ class App {
   }
 
   /**
+   * Filter recipes by tag. Then display results on the page.
+   * @param   {object[]}  Recipes   Array of Recipe objects
+   */
+  _filterByTagAndDisplayResults(Recipes) {
+    this.displayedRecipes = filterFromTag(Recipes, this.filtersList);
+    this._renderResults(this.displayedRecipes);
+    this._addSearchbarEvent();
+    this._addSearchByTagEvent();
+    this._addCloseTagEvent();
+  }
+
+  /**
    * When the user choses a tag, recipes and dropdown menu tags are filtered.
    *
    */
@@ -285,15 +312,7 @@ class App {
         tag.addEventListener("click", () => {
           this._renderNewTag(tag, filter);
           this.filtersList.push(tag.innerText);
-          this.recipeGrid.innerHTML = "";
-          this.displayedRecipes = filterFromTag(
-            this.displayedRecipes,
-            this.filtersList
-          );
-          this._renderResults(this.displayedRecipes);
-          this._addSearchbarEvent();
-          this._addSearchByTagEvent();
-          this._addCloseTagEvent();
+          this._filterByTagAndDisplayResults(this.displayedRecipes);
         });
       });
     });
@@ -333,26 +352,42 @@ class App {
   }
 
   /**
-   * On close of a tag, the results of the research are updated.
+   * Filter recipes by searchbar and tag. Then display results on the page.
+   * @param   {object[]}  Recipes   Array of Recipe objects
+   */
+  _filterByTagAndSearchbarAndDisplayResults() {
+    this.displayedRecipes = filterFromTag(this.Recipes, this.filtersList);
+    this.displayedRecipes = filterFromSearchbar(
+      this.displayedRecipes,
+      document.getElementById("search").value
+    );
+    this._renderResults(this.displayedRecipes);
+    this._addSearchbarEvent();
+    this._addSearchByTagEvent();
+    this._addCloseTagEvent();
+  }
+
+  /**
+   * On close of a tag, recipe and dropdown menus are updated.
    */
   _addCloseTagEvent() {
     const tags = document.querySelectorAll(".tag");
     tags.forEach((tag) => {
       tag.addEventListener("click", (e) => {
         deleteItemFromArray(e.target.innerText, this.filtersList);
-        if (this.filtersList.length > 0) {
-          this.displayedRecipes = filterFromTag(this.Recipes, this.filtersList);
+        if (
+          this.filtersList.length > 0 &&
+          document.getElementById("search").value.length > 2
+        ) {
+          this._filterByTagAndSearchbarAndDisplayResults();
+        } else if (this.filtersList.length > 0) {
+          this._filterByTagAndDisplayResults(this.Recipes);
         } else if (document.getElementById("search").value.length > 2) {
-          this.displayedRecipes = filterFromSearchnar(
-            this.Recipes,
-            document.getElementById("search").value
-          );
+          this._filterBySearchbarAndDisplayResults(this.Recipes);
         } else {
           this.displayedRecipes = this.Recipes;
+          this._renderResults(this.displayedRecipes);
         }
-        this._renderResults(this.displayedRecipes);
-        this._addSearchbarEvent();
-        this._addSearchByTagEvent();
       });
     });
   }
