@@ -12,6 +12,20 @@ function deleteDuplicateItems(list) {
 }
 
 /**
+ * Delete an item from an array.
+ * @param   {*}      itemToDelete  Item to delete
+ * @param   {array}  list          Array in which the item has to be deleted
+ * @return  {array}                Array without the item
+ */
+function deleteItemFromArray(itemToDelete, list) {
+  const index = list.indexOf(itemToDelete);
+  if (index !== -1) {
+    list.splice(index, 1);
+  }
+  return list;
+}
+
+/**
  * Turn a list of strings into a list of <li> items.
  * @param   {string[]}  list  Initial array of strings
  * @return  {string[]}        Array of <li> items
@@ -76,10 +90,20 @@ class App {
     this.tagList = document.querySelector(".tags-wrapper");
     this.filtersWrapper = document.querySelector(".filters-wrapper");
     this.displayedRecipes = [];
+    this.filtersList = [];
   }
 
   get Recipes() {
     return recipes.map((recipe) => new Recipe(recipe));
+  }
+
+  /**
+   * On clic outside of an expanded dropdown, that one is reduced.
+   */
+  _addReduceAllDropdownsEvent() {
+    document.querySelector("body").addEventListener("click", () => {
+      reduceAllOthersDropdowns("none");
+    });
   }
 
   /**
@@ -143,7 +167,7 @@ class App {
    * On clic on the dropdown button, the dropdown menu expands.
    * @param   {string}  category  Category of the dropdown ('ingredients', 'appliance' or 'utensils')
    */
-  _addDropdownLabelEvent(category) {
+  _addDropdownLabelClicEvent(category) {
     document
       .getElementById(`${category}-label`)
       .addEventListener("click", (e) => {
@@ -158,7 +182,7 @@ class App {
    * On clic on the dropdown icon, the dropdown menu expands or drops.
    * @param   {string}  category  Category of the dropdown ('ingredients', 'appliance' or 'utensils')
    */
-  _addDropdownToggleButtonEvent(category) {
+  _addDropdownToggleButtonClicEvent(category) {
     const icon = document.getElementById(`${category}-icon`);
     icon.addEventListener("click", (e) => {
       e.stopPropagation();
@@ -186,10 +210,26 @@ class App {
    * When no result is found, display a message and remove all tags from dropdown menus.
    */
   _noResultFound() {
-    this.recipeGrid.innerHTML = "Aucune recette ne correspond à vos critères";
+    this.recipeGrid.innerHTML = "";
+    document.querySelector(".message-wrapper").innerHTML =
+      "Aucune recette ne correspond à vos critères";
     FILTERS.forEach((filter) => {
       document.getElementById(`${filter}-list`).innerHTML = "";
     });
+  }
+
+  /**
+   * Display a message which indicates how much recipes are found
+   */
+  _displayNumberOfResults(number) {
+    let message = document.querySelector(".message-wrapper");
+    if (number === 0) {
+      this._noResultFound();
+    } else if (number === 1) {
+      message.innerHTML = "1 recette correspond à vos critères";
+    } else {
+      message.innerHTML = `${number} recettes correspondent à vos critères`;
+    }
   }
 
   /**
@@ -197,6 +237,8 @@ class App {
    * @param   {object[]}  list   Array of Recipe objects
    */
   _renderResults(list) {
+    this.recipeGrid.innerHTML = "";
+    this._displayNumberOfResults(list.length);
     this.displayedRecipes = list;
     this._renderRecipes(this.displayedRecipes);
     this._updateAllDropdownMenusAfterResearch();
@@ -210,18 +252,22 @@ class App {
   _addSearchbarEvent() {
     document.getElementById("search").addEventListener("keyup", (e) => {
       if (e.target.value.length > 2) {
-        this.recipeGrid.innerHTML = "";
         const results = filterFromSearchnar(
           this.displayedRecipes,
           e.target.value
         );
-        if (results.length < 1) {
-          this._noResultFound();
-        } else {
-          this._renderResults(results);
-          this._updateAllDropdownMenusAfterResearch();
+        this._updateAllDropdownMenusAfterResearch();
+        if (results.length > 0) {
+          this.displayedRecipes = results;
+          this._renderResults(this.displayedRecipes);
           this._addSearchByTagEvent();
+        } else {
+          this._displayNumberOfResults(0);
+          this._noResultFound();
         }
+      } else if (this.filtersList.length > 0) {
+        this._renderResults(this.displayedRecipes);
+        this._addSearchByTagEvent();
       } else {
         this._resetAfterResearch();
       }
@@ -237,15 +283,16 @@ class App {
       document.querySelectorAll(`#${filter}-list li`).forEach((tag) => {
         tag.addEventListener("click", () => {
           this._renderNewTag(tag, filter);
+          this.filtersList.push(tag.innerText);
           this.recipeGrid.innerHTML = "";
           this.displayedRecipes = filterFromTag(
             this.displayedRecipes,
-            tag.innerText
+            this.filtersList
           );
-          this._renderRecipes(this.displayedRecipes);
-          this._updateAllDropdownMenusAfterResearch();
+          this._renderResults(this.displayedRecipes);
           this._addSearchbarEvent();
           this._addSearchByTagEvent();
+          this._addCloseTagEvent();
         });
       });
     });
@@ -276,10 +323,36 @@ class App {
    */
   _resetAfterResearch() {
     this.recipeGrid.innerHTML = "";
-    this._renderRecipes(this.displayedRecipes);
+    this._renderRecipes(this.Recipes);
+    document.querySelector(".message-wrapper").innerHTML = "";
     FILTERS.forEach((filter) => {
       document.getElementById(`${filter}-list`).innerHTML =
         this._getDropdownContent(`${filter}`);
+    });
+  }
+
+  /**
+   * On close of a tag, the results of the research are updated.
+   */
+  _addCloseTagEvent() {
+    const tags = document.querySelectorAll(".tag");
+    tags.forEach((tag) => {
+      tag.addEventListener("click", (e) => {
+        deleteItemFromArray(e.target.innerText, this.filtersList);
+        if (this.filtersList.length > 0) {
+          this.displayedRecipes = filterFromTag(this.Recipes, this.filtersList);
+        } else if (document.getElementById("search").value.length > 2) {
+          this.displayedRecipes = filterFromSearchnar(
+            this.Recipes,
+            document.getElementById("search").value
+          );
+        } else {
+          this.displayedRecipes = this.Recipes;
+        }
+        this._renderResults(this.displayedRecipes);
+        this._addSearchbarEvent();
+        this._addSearchByTagEvent();
+      });
     });
   }
 
@@ -295,9 +368,11 @@ class App {
         `${filter}`,
         this._getDropdownContentList(this.Recipes, `${filter}`)
       );
-      this._addDropdownLabelEvent(filter);
-      this._addDropdownToggleButtonEvent(filter);
+      this._addDropdownLabelClicEvent(filter);
+      this._addDropdownToggleButtonClicEvent(filter);
     });
+
+    this._addReduceAllDropdownsEvent();
 
     this._addSearchbarEvent();
     this._addSearchByTagEvent();

@@ -4,9 +4,12 @@ function filterFromSearchnar(recipes, query) {
   );
 }
 
-function filterFromTag(recipes, tag) {
-  const result = recipes.filter((recipe) =>
-    recipe.tagList.includes(tag.toLowerCase())
-  );
+function filterFromTag(recipes, filtersList) {
+  let result = recipes;
+  filtersList.forEach((filter) => {
+    result = result.filter((recipe) =>
+      recipe.tagList.includes(filter.toLowerCase())
+    );
+  });
   return result;
 }
