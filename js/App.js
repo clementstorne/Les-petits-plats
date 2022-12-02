@@ -266,6 +266,7 @@ class App {
           this._noResultFound();
         }
       } else if (this.filtersList.length > 0) {
+        this.displayedRecipes = filterFromTag(this.Recipes, this.filtersList);
         this._renderResults(this.displayedRecipes);
         this._addSearchByTagEvent();
       } else {
