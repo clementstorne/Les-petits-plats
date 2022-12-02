@@ -26,7 +26,7 @@ function deleteItemFromArray(itemToDelete, list) {
 }
 
 /**
- * Turn a list of strings into a list of <li> items.
+ * Turn an array of strings into a array of <li> items.
  * @param   {string[]}  list  Initial array of strings
  * @return  {string[]}        Array of <li> items
  */
