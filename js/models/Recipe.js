@@ -23,6 +23,10 @@ class Recipe {
     return this.utensils;
   }
 
+  get searchIngredientsList() {
+    return this.ingredientsList.join().toLocaleLowerCase();
+  }
+
   get searchList() {
     const list = [this.name].concat(this.ingredientsList, this.description);
     return list.join().toLocaleLowerCase();

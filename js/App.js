@@ -39,6 +39,15 @@ function turnIntoListOfItems(list) {
 }
 
 /**
+ * Turn a string of <li> items into an array.
+ * @param   {string}    string  Initial array of strings
+ * @return  {string[]}          Array of strings
+ */
+function turnIntoList(string) {
+  return string.split("</li><li>");
+}
+
+/**
  * Expand the dropdown button.
  * @param   {string}  category  Allows to select which dropdown to expand ('ingredients', 'appliance' or 'utensils')
  */
@@ -192,6 +201,7 @@ class App {
       } else {
         reduceAllOthersDropdowns(category);
         expandDropdown(category);
+        document.querySelector(`#${category}-input`).focus();
       }
     });
   }
@@ -393,6 +403,34 @@ class App {
   }
 
   /**
+   * When the user types a character in a dropdown input, the dropdown menu is updated with matching tags
+   */
+  _addDropdownInputEvent() {
+    FILTERS.forEach((category) => {
+      document
+        .querySelectorAll(`#${category}-input`)
+        .forEach((dropdownInput) => {
+          dropdownInput.addEventListener("keyup", (e) => {
+            if (e.target.value.length === 0) {
+              this._updateDropdownMenuAfterResearch(
+                this.displayedRecipes,
+                `${category}`
+              );
+            } else {
+              document.getElementById(`${category}-list`).innerHTML =
+                turnIntoListOfItems(
+                  filterTags(
+                    this._getDropdownContentList(this.Recipes, category),
+                    e.target.value
+                  )
+                ).join("");
+            }
+          });
+        });
+    });
+  }
+
+  /**
    * Render all the elements on the page.
    */
   render() {
@@ -411,6 +449,7 @@ class App {
     this._addReduceAllDropdownsEvent();
 
     this._addSearchbarEvent();
+    this._addDropdownInputEvent();
     this._addSearchByTagEvent();
   }
 }
