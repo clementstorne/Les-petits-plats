@@ -20,7 +20,7 @@ function regexSearch(query, dataToFilter, propertyToTest = "") {
   } else {
     for (let object of dataToFilter) {
       if (regex.test(object[propertyToTest])) {
-        resultList.push(item);
+        resultList.push(object);
       }
     }
     return resultList;
