@@ -1,5 +1,11 @@
 import { recipes } from "../data/recipes.js";
 
+// import {
+//   deleteDuplicateItems,
+//   deleteItemFromArray,
+//   turnIntoListOfItems,
+// } from "./lib/array";
+
 const FILTERS = ["ingredients", "appliance", "utensils"];
 
 class App {
@@ -185,7 +191,18 @@ class App {
    */
   _addSearchbarEvent() {
     document.getElementById("search").addEventListener("keyup", (e) => {
-      if (e.target.value.length > 2) {
+      if (e.target.value.length > 2 && this.filtersList.length == 0) {
+        const results = filterFromSearchbar(this.Recipes, e.target.value);
+        this._updateAllDropdownMenusAfterResearch();
+        if (results.length > 0) {
+          this.displayedRecipes = results;
+          this._renderResults(this.displayedRecipes);
+          this._addSearchByTagEvent();
+        } else {
+          this._displayNumberOfResults(0);
+          this._noResultFound();
+        }
+      } else if (e.target.value.length > 2 && this.filtersList.length > 0) {
         const results = filterFromSearchbar(
           this.displayedRecipes,
           e.target.value
@@ -307,6 +324,7 @@ class App {
         } else {
           this.displayedRecipes = this.Recipes;
           this._renderResults(this.displayedRecipes);
+          this._addSearchByTagEvent();
         }
       });
     });
