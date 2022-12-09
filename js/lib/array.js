@@ -33,5 +33,3 @@ function turnIntoListOfItems(list) {
   });
   return contentList;
 }
-
-// export { deleteDuplicateItems, deleteItemFromArray, turnIntoListOfItems };
