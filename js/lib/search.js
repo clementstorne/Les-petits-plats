@@ -1,13 +1,40 @@
 /**
+ * Filter an array of objects such that a property matches with the query.
+ * If there is no propertyToTest parameter, filter an array of strings to match with the query.
+ * @param   {string}     query               String to match
+ * @param   {object[]}   dataToFilter        Array of objects to filter
+ * @param   {string}    [propertyToTest=""]  Property of the objects to test with the regex
+ * @return  {object[]}                       Array of objects filtered
+ */
+function regexSearch(query, dataToFilter, propertyToTest = "") {
+  let resultList = [];
+  let regex = new RegExp(query, "i");
+
+  if (propertyToTest === "") {
+    for (let object of dataToFilter) {
+      if (regex.test(object)) {
+        resultList.push(object);
+      }
+    }
+    return resultList;
+  } else {
+    for (let object of dataToFilter) {
+      if (regex.test(object[propertyToTest])) {
+        resultList.push(item);
+      }
+    }
+    return resultList;
+  }
+}
+
+/**
  * Filter recipes to match with the query.
  * @param   {object[]}  recipes  Array of Recipe objects
  * @param   {string}    query    String to match with in recipe name, ingredients list or description.
  * @return  {object[]}           Array of Recipe objects matching the query
  */
 function filterFromSearchbar(recipes, query) {
-  return recipes.filter((recipe) =>
-    recipe.searchList.includes(query.toLowerCase())
-  );
+  return regexSearch(query, recipes, "searchList");
 }
 
 /**
@@ -18,11 +45,9 @@ function filterFromSearchbar(recipes, query) {
  */
 function filterFromTag(recipes, filtersList) {
   let result = recipes;
-  filtersList.forEach((filter) => {
-    result = result.filter((recipe) =>
-      recipe.tagList.includes(filter.toLowerCase())
-    );
-  });
+  for (let filter of filtersList) {
+    result = regexSearch(filter, result, "tagList");
+  }
   return result;
 }
 
@@ -33,7 +58,5 @@ function filterFromTag(recipes, filtersList) {
  * @return  {string[]}         Array with only matching strings
  */
 function filterTags(list, query) {
-  return list.filter((elements) =>
-    elements.toLowerCase().includes(query.toLowerCase())
-  );
+  return regexSearch(query, list);
 }
