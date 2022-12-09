@@ -1,26 +1,26 @@
 /**
  * Filter an array of objects such that a property matches with the query.
  * If there is no propertyToTest parameter, filter an array of strings to match with the query.
- * @param   {string}     query               String to match
- * @param   {object[]}   dataToFilter        Array of objects to filter
- * @param   {string}    [propertyToTest=""]  Property of the objects to test with the regex
- * @return  {object[]}                       Array of objects filtered
+ * @param   {string}     query                String to match
+ * @param   {object[]}   dataToFilter         Array of objects to filter
+ * @param   {string}     [propertyToTest=""]  Property of the objects to test with the regex
+ * @return  {object[]}                        Array of objects filtered
  */
 function regexSearch(query, dataToFilter, propertyToTest = "") {
   let resultList = [];
   let regex = new RegExp(query, "i");
 
   if (propertyToTest === "") {
-    for (let object of dataToFilter) {
-      if (regex.test(object)) {
-        resultList.push(object);
+    for (let i = 0; i < dataToFilter.length; i++) {
+      if (regex.test(dataToFilter[i])) {
+        resultList.push(dataToFilter[i]);
       }
     }
     return resultList;
   } else {
-    for (let object of dataToFilter) {
-      if (regex.test(object[propertyToTest])) {
-        resultList.push(object);
+    for (let i = 0; i < dataToFilter.length; i++) {
+      if (regex.test(dataToFilter[i][propertyToTest])) {
+        resultList.push(dataToFilter[i]);
       }
     }
     return resultList;
@@ -45,8 +45,8 @@ function filterFromSearchbar(recipes, query) {
  */
 function filterFromTag(recipes, filtersList) {
   let result = recipes;
-  for (let filter of filtersList) {
-    result = regexSearch(filter, result, "tagList");
+  for (let i = 0; i < filtersList.length; i++) {
+    result = regexSearch(filtersList[i], result, "tagList");
   }
   return result;
 }
