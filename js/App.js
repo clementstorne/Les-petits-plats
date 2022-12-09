@@ -1,11 +1,5 @@
 import { recipes } from "../data/recipes.js";
 
-// import {
-//   deleteDuplicateItems,
-//   deleteItemFromArray,
-//   turnIntoListOfItems,
-// } from "./lib/array";
-
 const FILTERS = ["ingredients", "appliance", "utensils"];
 
 class App {
@@ -202,7 +196,7 @@ class App {
           this._displayNumberOfResults(0);
           this._noResultFound();
         }
-      } else if (e.target.value.length > 2 && this.filtersList.length > 0) {
+      } else if (e.target.value.length > 2) {
         const results = filterFromSearchbar(
           this.displayedRecipes,
           e.target.value
