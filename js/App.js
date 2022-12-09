@@ -2,97 +2,6 @@ import { recipes } from "../data/recipes.js";
 
 const FILTERS = ["ingredients", "appliance", "utensils"];
 
-/**
- * Delete all the duplications in an array.
- * @param   {array}  list  Initial array with potential duplications
- * @return  {array}        Array without duplications
- */
-function deleteDuplicateItems(list) {
-  return list.filter((item, index) => list.indexOf(item) === index);
-}
-
-/**
- * Delete an item from an array.
- * @param   {*}      itemToDelete  Item to delete
- * @param   {array}  list          Array in which the item has to be deleted
- * @return  {array}                Array without the item
- */
-function deleteItemFromArray(itemToDelete, list) {
-  const index = list.indexOf(itemToDelete);
-  if (index !== -1) {
-    list.splice(index, 1);
-  }
-  return list;
-}
-
-/**
- * Turn an array of strings into a array of <li> items.
- * @param   {string[]}  list  Initial array of strings
- * @return  {string[]}        Array of <li> items
- */
-function turnIntoListOfItems(list) {
-  const contentList = [];
-  list.forEach((item) => {
-    contentList.push(`<li>${item}</li>`);
-  });
-  return contentList;
-}
-
-/**
- * Turn a string of <li> items into an array.
- * @param   {string}    string  Initial array of strings
- * @return  {string[]}          Array of strings
- */
-function turnIntoList(string) {
-  return string.split("</li><li>");
-}
-
-/**
- * Expand the dropdown button.
- * @param   {string}  category  Allows to select which dropdown to expand ('ingredients', 'appliance' or 'utensils')
- */
-function expandDropdown(category) {
-  const label = document.getElementById(`${category}-label`);
-  const input = document.getElementById(`${category}-input`);
-  const icon = document.getElementById(`${category}-icon`);
-  const ul = document.getElementById(`${category}-list`);
-
-  label.style.width = "667px";
-  icon.classList.remove("filter-icon-expand");
-  icon.classList.add("filter-icon-reduce");
-  input.style.visibility = "visible";
-  ul.style.visibility = "visible";
-}
-
-/**
- * Reduce the dropdown button.
- * @param   {string}  category  Allows to select which dropdown to expand ('ingredients', 'appliance' or 'utensils')
- */
-function reduceDropdown(category) {
-  const label = document.getElementById(`${category}-label`);
-  const input = document.getElementById(`${category}-input`);
-  const icon = document.getElementById(`${category}-icon`);
-  const ul = document.getElementById(`${category}-list`);
-
-  label.style.width = null;
-  input.style.visibility = null;
-  ul.style.visibility = null;
-  icon.classList.remove("filter-icon-reduce");
-  icon.classList.add("filter-icon-expand");
-}
-
-/**
- * Reduce all the dropdown buttons except the one clicked.
- * @param   {string}  category  Category of the dropdown button that has been clicked ('ingredients', 'appliance' or 'utensils')
- */
-function reduceAllOthersDropdowns(category) {
-  FILTERS.forEach((filter) => {
-    if (filter !== category) {
-      reduceDropdown(filter);
-    }
-  });
-}
-
 class App {
   constructor() {
     this.recipeGrid = document.querySelector("main");
@@ -323,6 +232,7 @@ class App {
           this._renderNewTag(tag, filter);
           this.filtersList.push(tag.innerText);
           this._filterByTagAndDisplayResults(this.displayedRecipes);
+          document.querySelector(`#${filter}-input`).value = "";
         });
       });
     });
@@ -416,6 +326,7 @@ class App {
                 this.displayedRecipes,
                 `${category}`
               );
+              this._addSearchByTagEvent();
             } else {
               document.getElementById(`${category}-list`).innerHTML =
                 turnIntoListOfItems(
@@ -424,6 +335,7 @@ class App {
                     e.target.value
                   )
                 ).join("");
+              this._addSearchByTagEvent();
             }
           });
         });
