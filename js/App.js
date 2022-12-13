@@ -66,9 +66,8 @@ class App {
    * @return  {string}              HTML content for the dropdown menu
    */
   _getDropdownContent(category) {
-    return turnIntoListOfItems(
-      this._getDropdownContentList(this.Recipes, category)
-    ).join("");
+    const list = this._getDropdownContentList(this.Recipes, category);
+    return turnIntoListOfItems(list).join("");
   }
 
   /**
@@ -168,10 +167,8 @@ class App {
    * @param   {object[]}  Recipes   Array of Recipe objects
    */
   _filterBySearchbarAndDisplayResults(Recipes) {
-    this.displayedRecipes = filterFromSearchbar(
-      Recipes,
-      document.getElementById("search").value
-    );
+    const query = document.getElementById("search").value;
+    this.displayedRecipes = filterFromSearchbar(Recipes, query);
     this._renderResults(this.displayedRecipes);
     this._addSearchbarEvent();
     this._addSearchByTagEvent();
@@ -196,7 +193,7 @@ class App {
           this._displayNumberOfResults(0);
           this._noResultFound();
         }
-      } else if (e.target.value.length > 2) {
+      } else if (e.target.value.length > 2 && this.filtersList.length > 0) {
         const results = filterFromSearchbar(
           this.displayedRecipes,
           e.target.value
@@ -287,11 +284,9 @@ class App {
    * @param   {object[]}  Recipes   Array of Recipe objects
    */
   _filterByTagAndSearchbarAndDisplayResults() {
+    const query = document.getElementById("search").value;
     this.displayedRecipes = filterFromTag(this.Recipes, this.filtersList);
-    this.displayedRecipes = filterFromSearchbar(
-      this.displayedRecipes,
-      document.getElementById("search").value
-    );
+    this.displayedRecipes = filterFromSearchbar(this.displayedRecipes, query);
     this._renderResults(this.displayedRecipes);
     this._addSearchbarEvent();
     this._addSearchByTagEvent();
@@ -306,14 +301,12 @@ class App {
     tags.forEach((tag) => {
       tag.addEventListener("click", (e) => {
         deleteItemFromArray(e.target.innerText, this.filtersList);
-        if (
-          this.filtersList.length > 0 &&
-          document.getElementById("search").value.length > 2
-        ) {
+        const searchbarContent = document.getElementById("search").value;
+        if (this.filtersList.length > 0 && searchbarContent.length > 2) {
           this._filterByTagAndSearchbarAndDisplayResults();
         } else if (this.filtersList.length > 0) {
           this._filterByTagAndDisplayResults(this.Recipes);
-        } else if (document.getElementById("search").value.length > 2) {
+        } else if (searchbarContent.length > 2) {
           this._filterBySearchbarAndDisplayResults(this.Recipes);
         } else {
           this.displayedRecipes = this.Recipes;
@@ -340,13 +333,16 @@ class App {
               );
               this._addSearchByTagEvent();
             } else {
+              const dropdownContentList = this._getDropdownContentList(
+                this.Recipes,
+                category
+              );
+              const filteredTagsList = filterTags(
+                dropdownContentList,
+                e.target.value
+              );
               document.getElementById(`${category}-list`).innerHTML =
-                turnIntoListOfItems(
-                  filterTags(
-                    this._getDropdownContentList(this.Recipes, category),
-                    e.target.value
-                  )
-                ).join("");
+                turnIntoListOfItems(filteredTagsList).join("");
               this._addSearchByTagEvent();
             }
           });
@@ -362,10 +358,11 @@ class App {
     this.displayedRecipes = this.Recipes;
 
     FILTERS.forEach((filter) => {
-      this._renderDropdown(
-        `${filter}`,
-        this._getDropdownContentList(this.Recipes, `${filter}`)
+      const dropdownContentList = this._getDropdownContentList(
+        this.Recipes,
+        `${filter}`
       );
+      this._renderDropdown(`${filter}`, dropdownContentList);
       this._addDropdownLabelClicEvent(filter);
       this._addDropdownToggleButtonClicEvent(filter);
     });
