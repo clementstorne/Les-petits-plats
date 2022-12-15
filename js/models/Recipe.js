@@ -10,6 +10,11 @@ class Recipe {
     this.utensils = data.ustensils;
   }
 
+  get image() {
+    const imgName = replaceCharacter(this.name.toLocaleLowerCase());
+    return "./images/recipes/" + imgName.split(" ").join("-") + ".jpeg";
+  }
+
   get ingredientsList() {
     const list = [];
     this.ingredients.forEach((object) => list.push(object.ingredient));
