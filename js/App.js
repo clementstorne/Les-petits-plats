@@ -277,6 +277,9 @@ class App {
       document.getElementById(`${filter}-list`).innerHTML =
         this._getDropdownContent(`${filter}`);
     });
+    this._addSearchbarEvent();
+    this._addDropdownInputEvent();
+    this._addSearchByTagEvent();
   }
 
   /**
@@ -309,9 +312,7 @@ class App {
         } else if (searchbarContent.length > 2) {
           this._filterBySearchbarAndDisplayResults(this.Recipes);
         } else {
-          this.displayedRecipes = this.Recipes;
-          this._renderResults(this.displayedRecipes);
-          this._addSearchByTagEvent();
+          this._resetAfterResearch();
         }
       });
     });
